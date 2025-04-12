@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LruCache.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JunitTest</a> &gt; <a href="index.source.html" class="el_package">com.ubs</a> &gt; <span class="el_source">LruCache.java</span></div><h1>LruCache.java</h1><pre class="source lang-java linenums">package com.ubs;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class LruCache {
+
+	private int maxSize;
+	private int currentSize;
+	private CacheNode headNode;
+	private CacheNode tailNode;
+
+	Map&lt;Integer, CacheNode&gt; map;
+
+<span class="fc" id="L15">	public LruCache() {</span>
+<span class="fc" id="L16">		maxSize = 5;</span>
+<span class="fc" id="L17">		currentSize = 0;</span>
+<span class="fc" id="L18">		headNode = null;</span>
+<span class="fc" id="L19">		tailNode = null;</span>
+<span class="fc" id="L20">		map = new HashMap&lt;Integer, CacheNode&gt;();</span>
+<span class="fc" id="L21">	}</span>
+
+	public void putNode(int key, int value) {
+<span class="fc bfc" id="L24" title="All 2 branches covered.">		if (map.containsKey(key)) {</span>
+<span class="fc" id="L25">			CacheNode currentNode = map.get(key);</span>
+<span class="fc" id="L26">			currentNode.setValue(value);</span>
+<span class="fc" id="L27">			removeNode(currentNode);</span>
+<span class="fc" id="L28">			setNodeAsHeader(currentNode);</span>
+<span class="fc" id="L29">		} else {</span>
+<span class="fc" id="L30">			CacheNode newNode = new CacheNode(key, value);</span>
+<span class="fc" id="L31">			map.put(key, newNode);</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">			if (headNode == null) {</span>
+<span class="fc" id="L33">				headNode = newNode;</span>
+<span class="fc" id="L34">				tailNode = newNode;</span>
+			} else {
+<span class="fc" id="L36">				newNode.setNext(headNode);</span>
+<span class="fc" id="L37">				headNode.setPre(newNode);</span>
+<span class="fc" id="L38">				headNode = newNode;</span>
+			}
+<span class="fc" id="L40">			currentSize = currentSize + 1;</span>
+<span class="fc" id="L41">			System.out.println(&quot; Current size : &quot; + currentSize);</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">			if (currentSize &gt; maxSize) {</span>
+<span class="fc" id="L43">				System.out.println(&quot; Cache overflow&quot;);</span>
+<span class="fc" id="L44">				removeLastNode();</span>
+			}
+		}
+<span class="fc" id="L47">	}</span>
+
+	public void setNodeAsHeader(CacheNode node) {
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">		if (headNode == null) {</span>
+<span class="nc" id="L51">			headNode = node;</span>
+<span class="nc" id="L52">			tailNode = node;</span>
+		} else {
+<span class="fc" id="L54">			node.setNext(headNode);</span>
+<span class="fc" id="L55">			headNode.setPre(node);</span>
+<span class="fc" id="L56">			headNode = node;</span>
+		}
+<span class="fc" id="L58">	}</span>
+
+	public void removeNode(CacheNode node) {
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">		if (node.getPre() != null) {</span>
+<span class="fc" id="L62">			CacheNode pre = node.getPre();</span>
+<span class="fc" id="L63">			pre.setNext(node.getNext());</span>
+		}
+<span class="fc bfc" id="L65" title="All 2 branches covered.">		if (node.getNext() != null) {</span>
+<span class="fc" id="L66">			CacheNode next = node.getNext();</span>
+<span class="fc" id="L67">			next.setPre(node.getPre());</span>
+		}
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">		if (node.equals(headNode)) {</span>
+<span class="nc" id="L70">			CacheNode next = node.getNext();</span>
+<span class="nc" id="L71">			next.setPre(null);</span>
+<span class="nc" id="L72">			headNode = next;</span>
+		}
+<span class="fc bfc" id="L74" title="All 2 branches covered.">		if (node.equals(tailNode)) {</span>
+<span class="fc" id="L75">			CacheNode pre = node.getPre();</span>
+<span class="fc" id="L76">			pre.setNext(null);</span>
+<span class="fc" id="L77">			tailNode = pre;</span>
+		}
+<span class="fc" id="L79">	}</span>
+
+	public void removeLastNode() {
+<span class="fc" id="L82">		CacheNode pre = tailNode.getPre();</span>
+//		System.out.println(&quot; Current Tail : &quot; + tailNode);
+
+<span class="fc" id="L85">		tailNode.setNext(null);</span>
+<span class="fc" id="L86">		tailNode.setPre(null);</span>
+
+<span class="fc" id="L88">		pre.setNext(null);</span>
+
+<span class="fc" id="L90">		tailNode = pre;</span>
+//		System.out.println(&quot; New  Tail : &quot; + tailNode);
+<span class="fc" id="L92">		currentSize = currentSize - 1;</span>
+
+<span class="fc" id="L94">	}</span>
+
+	public int getCurrentSize() {
+<span class="fc" id="L97">		return currentSize;</span>
+	}
+
+	public CacheNode getHeadNode() {
+<span class="fc" id="L101">		return headNode;</span>
+	}
+
+	public void setHeadNode(CacheNode headNode) {
+<span class="nc" id="L105">		this.headNode = headNode;</span>
+<span class="nc" id="L106">	}</span>
+
+	public CacheNode getTailNode() {
+<span class="fc" id="L109">		return tailNode;</span>
+	}
+
+	public void setTailNode(CacheNode tailNode) {
+<span class="nc" id="L113">		this.tailNode = tailNode;</span>
+<span class="nc" id="L114">	}</span>
+
+}
+
+class CacheNode {
+	Integer key;
+	Integer value;
+	CacheNode next;
+	CacheNode pre;
+
+<span class="fc" id="L124">	public CacheNode(Integer key, Integer value) {</span>
+<span class="fc" id="L125">		this.key = key;</span>
+<span class="fc" id="L126">		this.value = value;</span>
+<span class="fc" id="L127">	}</span>
+
+	public CacheNode getNext() {
+<span class="fc" id="L130">		return next;</span>
+	}
+
+	public void setNext(CacheNode next) {
+<span class="fc" id="L134">		this.next = next;</span>
+<span class="fc" id="L135">	}</span>
+
+	public CacheNode getPre() {
+<span class="fc" id="L138">		return pre;</span>
+	}
+
+	public void setPre(CacheNode pre) {
+<span class="fc" id="L142">		this.pre = pre;</span>
+<span class="fc" id="L143">	}</span>
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L147">		final int prime = 31;</span>
+<span class="nc" id="L148">		int result = 1;</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">		result = prime * result + ((key == null) ? 0 : key.hashCode());</span>
+<span class="nc" id="L150">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L155" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L156">			return true;</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L158">			return false;</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L160">			return false;</span>
+<span class="fc" id="L161">		CacheNode other = (CacheNode) obj;</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">		if (key == null) {</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">			if (other.key != null)</span>
+<span class="nc" id="L164">				return false;</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">		} else if (!key.equals(other.key))</span>
+<span class="fc" id="L166">			return false;</span>
+<span class="fc" id="L167">		return true;</span>
+	}
+
+	public Integer getValue() {
+<span class="nc" id="L171">		return value;</span>
+	}
+
+	public void setValue(Integer value) {
+<span class="fc" id="L175">		this.value = value;</span>
+<span class="fc" id="L176">	}</span>
+
+	@Override
+	public String toString() {
+<span class="nc" id="L180">		return &quot;CacheNode [key=&quot; + key + &quot;, value=&quot; + value + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.7.201606060606</span></div></body></html>

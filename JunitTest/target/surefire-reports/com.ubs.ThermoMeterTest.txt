@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.ubs.ThermoMeterTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.776 sec - in com.ubs.ThermoMeterTest
